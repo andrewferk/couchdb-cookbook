@@ -80,21 +80,14 @@ user "couchdb" do
 end
 
 %w{ var/lib/couchdb var/log/couchdb var/run etc/couchdb }.each do |dir|
-  directory "/usr/local/#{dir}" do
-    owner "couchdb"
-    group "couchdb"
-    mode "0770"
-  end
+  execute "chown -R couchdb:couchdb /usr/local/#{dir} && chmod -R 0770 /usr/local/#{dir}"
 end
 
-cookbook_file "/etc/init.d/couchdb" do
-  source "couchdb.init"
-  owner "root"
-  group "root"
-  mode "0755"
+link "/etc/init.d/couchdb" do
+  to "/usr/local/etc/init.d/couchdb"
 end
 
 service "couchdb" do
-  supports [ :restart, :status ]
+  supports :start => true, :stop => true, :restart => true, :status => true
   action [:enable, :start]
 end
